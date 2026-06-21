@@ -1,0 +1,54 @@
+[
+    {
+        "id": 1,
+        "name": "Max",
+        "species": "Dog",
+        "breed": "Golden Retriever",
+        "age": 2,
+        "status": "Adopted by Juvehriya",
+        "image": "https://images.unsplash.com/photo-1552053831-71594a27632d?w=500",
+        "weight": "28kg",
+        "vaccines": "Up to date",
+        "next_vet": "2026-08-12",
+        "notes": "Enjoys outdoor frisbee."
+    },
+    {
+        "id": 2,
+        "name": "Luna",
+        "species": "Cat",
+        "breed": "Siamese",
+        "age": 1,
+        "status": "Adopted by Juvehriya",
+        "image": "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=500",
+        "weight": "4kg",
+        "vaccines": "Pending Booster",
+        "next_vet": "2026-07-01",
+        "notes": "Calm, loves window basking."
+    },
+    {
+        "id": 3,
+        "name": "Bella",
+        "species": "Dog",
+        "breed": "French Bulldog",
+        "age": 3,
+        "status": "Available",
+        "image": "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=500",
+        "weight": "11kg",
+        "vaccines": "Up to date",
+        "next_vet": "2026-09-20",
+        "notes": "Sensitive skin. Needs special diet grain-free food."
+    },
+    {
+        "id": 4,
+        "name": "rio",
+        "species": "Dog",
+        "breed": "pomeranian",
+        "age": 2,
+        "status": "Available",
+        "image": "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=500",
+        "weight": "Unknown",
+        "vaccines": "Unknown",
+        "next_vet": "None Scheduled",
+        "notes": "No notes."
+    }
+]

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pet Manager Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+    <nav class="bg-white border-b p-4 flex justify-between items-center max-w-7xl mx-auto rounded-b-xl">
+        <span class="text-xl font-bold text-indigo-600">🐾 Dashboard</span>
+        <div class="flex items-center gap-4">
+            <span class="text-sm bg-slate-100 px-3 py-1.5 rounded-full font-medium">Active: {{ username }}</span>
+            <a href="/logout" class="text-sm font-semibold text-red-600 hover:underline">Log Out</a>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border h-fit space-y-4">
+            <h2 class="text-xl font-bold">Register a New Animal</h2>
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Pet Name</label>
+                <input id="name" type="text" class="w-full border p-2 rounded-lg outline-none">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Species</label>
+                    <select id="species" class="w-full border p-2 rounded-lg outline-none">
+                        <option value="Dog">Dog</option>
+                        <option value="Cat">Cat</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Age (Yrs)</label>
+                    <input id="age" type="number" class="w-full border p-2 rounded-lg outline-none">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Breed Type</label>
+                <input id="breed" type="text" placeholder="e.g. Persian, Husky" class="w-full border p-2 rounded-lg outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Photo Link URL</label>
+                <input id="image" type="text" placeholder="https://..." class="w-full border p-2 rounded-lg outline-none">
+            </div>
+            <button onclick="addPet()" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-bold hover:bg-indigo-700 transition">Save Pet to Dashboard</button>
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+            <div class="flex items-center justify-between bg-white p-4 rounded-xl border shadow-sm">
+                <h2 class="text-xl font-bold">Pet Directory</h2>
+                <div class="flex gap-2">
+                    <button onclick="loadPets('All')" class="px-4 py-1.5 bg-slate-200 rounded-lg text-sm font-medium">All</button>
+                    <button onclick="loadPets('Dog')" class="px-4 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">Dogs Only</button>
+                    <button onclick="loadPets('Cat')" class="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium">Cats Only</button>
+                </div>
+            </div>
+
+            <div id="petsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </div>
+    </main>
+
+    <div id="healthModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-2xl max-w-md w-full space-y-4">
+            <h3 class="text-xl font-bold">Update Health Report</h3>
+            <input type="hidden" id="modalPetId">
+            <div>
+                <label class="block text-xs font-bold mb-1">Weight</label>
+                <input id="mWeight" type="text" class="w-full border p-2 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-xs font-bold mb-1">Vaccinations</label>
+                <input id="mVaccines" type="text" class="w-full border p-2 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-xs font-bold mb-1">Next Vet Appointment</label>
+                <input id="mNextVet" type="date" class="w-full border p-2 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-xs font-bold mb-1">Dietary/Medical Notes</label>
+                <textarea id="mNotes" class="w-full border p-2 rounded-lg h-20"></textarea>
+            </div>
+            <div class="flex gap-2 justify-end">
+                <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 rounded-lg text-sm font-medium">Cancel</button>
+                <button onclick="saveHealth()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium">Apply Updates</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allPets = [];
+
+        async function loadPets(filter = 'All') {
+            const response = await fetch('/api/pets');
+            allPets = await response.json();
+            const container = document.getElementById('petsContainer');
+            container.innerHTML = '';
+
+            const filtered = filter === 'All' ? allPets : allPets.filter(p => p.species === filter);
+
+            filtered.forEach(pet => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl overflow-hidden border shadow-sm flex flex-col";
+                card.innerHTML = `
+                    <img src="${pet.image}" class="w-full h-48 object-cover">
+                    <div class="p-4 flex-1 flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h3 class="text-lg font-bold text-slate-900">${pet.name}</h3>
+                                <span class="text-xs px-2 py-1 rounded font-bold bg-slate-100">${pet.breed}</span>
+                            </div>
+                            <p class="text-sm text-slate-500">${pet.age} years old • ${pet.species}</p>
+                            
+                            <div class="mt-3 bg-slate-50 p-3 rounded-lg text-xs space-y-1 border">
+                                <div><strong>Weight:</strong> ${pet.weight}</div>
+                                <div><strong>Vaccines:</strong> ${pet.vaccines}</div>
+                                <div><strong>Next Vet:</strong> ${pet.next_vet}</div>
+                                <div class="text-slate-600 italic mt-1">"${pet.notes}"</div>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-t flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider ${pet.status === 'Available' ? 'text-emerald-600' : 'text-purple-600'}">${pet.status}</span>
+                            <div class="flex gap-1">
+                                <button onclick="openModal(${JSON.stringify(pet).replace(/"/g, '&quot;')})" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-xs font-semibold rounded-lg">Health Log</button>
+                                ${pet.status === 'Available' ? `<button onclick="adoptPet(${pet.id})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg">Adopt</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function addPet() {
+            const petData = {
+                name: document.getElementById('name').value,
+                species: document.getElementById('species').value,
+                age: document.getElementById('age').value,
+                breed: document.getElementById('breed').value,
+                image: document.getElementById('image').value
+            };
+            await fetch('/api/pets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(petData)
+            });
+            loadPets();
+        }
+
+        async function adoptPet(id) {
+            await fetch(`/api/pets/${id}/adopt`, { method: 'PATCH' });
+            loadPets();
+        }
+
+        function openModal(pet) {
+            document.getElementById('modalPetId').value = pet.id;
+            document.getElementById('mWeight').value = pet.weight;
+            document.getElementById('mVaccines').value = pet.vaccines;
+            document.getElementById('mNextVet').value = pet.next_vet;
+            document.getElementById('mNotes').value = pet.notes;
+            document.getElementById('healthModal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('healthModal').classWith = document.getElementById('healthModal').classList.add('hidden'); }
+
+        async function saveHealth() {
+            const id = document.getElementById('modalPetId').value;
+            const data = {
+                weight: document.getElementById('mWeight').value,
+                vaccines: document.getElementById('mVaccines').value,
+                next_vet: document.getElementById('mNextVet').value,
+                notes: document.getElementById('mNotes').value
+            };
+            await fetch(`/api/pets/${id}/health`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            closeModal();
+            loadPets();
+        }
+
+        loadPets();
+    </script>
+</body>
+</html>
